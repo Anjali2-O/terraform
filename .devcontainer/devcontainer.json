@@ -1,0 +1,7 @@
+{
+  "name": "Terraform Docker Lab",
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  }
+}
