@@ -1,0 +1,45 @@
+name: Terraform Apply (Manual Approval)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (e.g. dev, prod)"
+        required: true
+        default: "dev"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform-apply:
+    name: Terraform Apply after Approval
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
+      # ✅ This enables manual approval from GitHub Environments settings
+      # You can add "Reviewers" in your repo settings → Environments
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      # Step 3: Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 4: Validate before apply (safety net)
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Step 5: Apply with auto-approve
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
