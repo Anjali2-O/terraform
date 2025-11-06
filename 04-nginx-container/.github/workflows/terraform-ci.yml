@@ -1,0 +1,53 @@
+name: Terraform CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  terraform:
+    name: Terraform Validate & Plan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      # Step 1: Checkout your repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5  # or latest stable version you use
+
+      # Step 3: Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 4: Check Terraform formatting
+      - name: Terraform Format Check
+        run: terraform fmt -check -diff
+
+      # Step 5: Validate syntax and configuration
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Step 6: Create Terraform Plan (dry-run)
+      - name: Terraform Plan
+        run: terraform plan -no-color
+
+      # Step 7: Upload plan as artifact (optional)
+      - name: Upload Terraform Plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-output
+          path: |
+            terraform.tfplan
+          retention-days: 3
